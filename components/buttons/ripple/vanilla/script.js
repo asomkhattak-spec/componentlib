@@ -10,5 +10,8 @@ document.querySelector('.rp-btn').addEventListener('click', function (e) {
   ripple.style.left = x - size / 2 + 'px';
   ripple.style.top = y - size / 2 + 'px';
   this.appendChild(ripple);
-  ripple.addEventListener('animationend', function () { ripple.remove(); });
+  ripple.addEventListener('animationend', function (e) {
+    // Two clocks run (grow 0.5s, fade 1s) — remove only after the fade ends.
+    if (e.animationName === 'rp-fade') ripple.remove();
+  });
 });

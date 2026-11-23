@@ -1,24 +1,65 @@
+/* Neon fill + stacked glow — technique after "Tidy Sloth" by zjssun
+   (uiverse.io/zjssun/tidy-sloth-40, MIT). Original transitions background
+   and four box-shadow layers at once on hover/:focus. Rebuilt: fill and
+   glow are pre-rendered pseudo-layers whose opacity animates; keyboard
+   parity via :focus-visible instead of the original's bare :focus. */
 .ng-btn {
-  --ng: #22d3ee;
-  padding: 0.8rem 2.4rem;
-  font: 600 1rem/1 system-ui, sans-serif;
-  letter-spacing: 0.08em;
+  --ng: #008cff;
+  --ng-ease: cubic-bezier(0.23, 1, 0.32, 1);
+  position: relative;
+  isolation: isolate;
+  padding: 0.7rem 1.6rem;
+  font: 500 1.05rem/1 system-ui, sans-serif;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--ng);
+  color: rgb(255 255 255 / 0.5);
   background: transparent;
-  border: 2px solid var(--ng);
-  border-radius: 0.5rem;
+  border: 1px solid rgb(255 255 255 / 0.5);
+  border-radius: 8px;
   cursor: pointer;
-  transition: color 0.25s, background-color 0.25s, box-shadow 0.25s;
+  user-select: none;
+  transition: color 0.5s ease, border-color 0.5s ease, scale 0.15s var(--ng-ease);
 }
+
+/* Fill layer (original: background-color -> #008cff). */
+.ng-btn::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: var(--ng);
+  opacity: 0;
+  z-index: -1;
+  transition: opacity 0.5s ease;
+}
+
+/* Glow layer: the original's 5/20/50/100px shadow stack, rendered once. */
+.ng-btn::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  box-shadow: 0 0 5px var(--ng), 0 0 20px var(--ng), 0 0 50px var(--ng), 0 0 100px var(--ng);
+  opacity: 0;
+  z-index: -2;
+  transition: opacity 0.5s ease;
+}
+
 .ng-btn:hover,
 .ng-btn:focus-visible {
-  color: #06121a;
-  background: var(--ng);
-  box-shadow: 0 0 12px var(--ng), 0 0 42px color-mix(in srgb, var(--ng) 55%, transparent);
+  color: #fff;
+  border-color: var(--ng);
+  text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 20px #fff;
+}
+.ng-btn:hover::before,
+.ng-btn:hover::after,
+.ng-btn:focus-visible::before,
+.ng-btn:focus-visible::after {
+  opacity: 1;
 }
 .ng-btn:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
-.ng-btn:active { transform: translateY(1px); }
+.ng-btn:active { scale: 0.97; }
+
 @media (prefers-reduced-motion: reduce) {
-  .ng-btn { transition: none; }
+  .ng-btn, .ng-btn::before, .ng-btn::after { transition: none; }
 }

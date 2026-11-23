@@ -7,7 +7,7 @@
     "underline",
     "animation"
   ],
-  "description": "Navigation bar with an underline that slides to the active link.",
+  "description": "Navigation with a compositor-driven sliding underline and left-to-right hover fills on every link.",
   "variants": [
     "vanilla",
     "react",
@@ -17,6 +17,6 @@
     "background": "auto",
     "height": 150
   },
-  "author": "component-library",
+  "author": "componentlib (fill technique after gharsh11032000, Uiverse.io — MIT)",
   "createdAt": "2026-11-23"
 }

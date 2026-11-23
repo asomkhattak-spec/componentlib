@@ -81,6 +81,33 @@ SMOKE_TEST      node scripts/smoke-test.mjs   (needs `npx astro preview --port 4
   `scale: 0.97`; `:focus-within` blooms; `isolation: isolate`; `ag-` prefix;
   reduced-motion block. Colors cyan→fuchsia to match the site accent family.
 
+## Worked example — full-library Uiverse rebuild (2026-11-23)
+
+Every seed component was rebuilt from a studied mirror source. Slugs and
+class prefixes kept; mechanisms replaced with the originals' logic, fixed
+per the rebuild rules:
+
+| Component | Studied source (uiverse.io) | Mechanism taken | Fix applied |
+|---|---|---|---|
+| buttons/aurora-glow | Spacious74/horrible-horse-4 | gradient wrapper border + blur bloom, snap on press | static blur, opacity-only bloom |
+| buttons/gradient-shift | Amir10Amir/big-dolphin-56 (.bn) | 600% gradient loop + blurred hover copy | rotating gradient disc (transform), pre-blurred glow |
+| buttons/neon-glow | zjssun/tidy-sloth-40 | fill + 4-layer shadow stack + text glow, 0.5s | fill/glow as opacity pseudo-layers, :focus-visible |
+| buttons/ripple | SelfMadeSystem/brown-kangaroo-43 | two clocks: growth 0.5s ease-out, fade 1s; isolation | pointer-exact span, remove on rp-fade end only |
+| cards/flip-card | IWhat1/cold-frog-10 | rotateY(180)+rotateZ(180), 1.5s, back pre-rotated both axes | out-quint curve, focus parity |
+| cards/glass-card | Codewithvinay/afraid-dodo-14 | skewX(15°) panels straighten+scaleX(1.3), floating glass chips | pre-blurred panel copy, transform-only float |
+| forms/floating-label | saidbl1/gentle-dragon-92 | label → bordered chip on border, 0.4s cubic-bezier(0.05,0.81,0,0.93) | scale() not font-size, :not(:placeholder-shown), scheme-aware chip bg |
+| loaders/orbit-spinner | abrahamcalsin/serious-turkey-52 | 8 arms × 45°, pulse scale 0→1, delays speed×−0.125 steps | same math via custom props |
+| loaders/pulse-bars | alexruix/nervous-sheep-18 | 0.3s linear alternate collapse 48px→4px, staggered | scaleY(1→0.083), compositor-only |
+| navigation/underline-nav | gharsh11032000/loud-puma-8 | scaleX(0→1) left-origin fills, 0.48s out-quint | underline via translateX+scaleX (1px bar × unitless --un-w) |
+
+Gotchas found in this pass:
+- Multiple animations on one element fire `animationend` per animation —
+  filter by `event.animationName` before removing the node.
+- `scaleX(var(--n))` needs a **unitless** custom property; a `px` value
+  silently invalidates the transform.
+- Chip/label backgrounds that "cut" a border must match the host surface:
+  read `html[data-scheme]` (preview bridge) with a light default.
+
 ## Ship loop (auto)
 
 ```sh

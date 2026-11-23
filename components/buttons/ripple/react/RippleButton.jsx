@@ -15,7 +15,9 @@ export default function RippleButton() {
     ripple.style.left = x - size / 2 + 'px';
     ripple.style.top = y - size / 2 + 'px';
     btn.appendChild(ripple);
-    ripple.addEventListener('animationend', () => ripple.remove());
+    ripple.addEventListener('animationend', (ev) => {
+      if (ev.animationName === 'rp-fade') ripple.remove();
+    });
   }
 
   return (

@@ -7,7 +7,7 @@
     "profile",
     "backdrop-filter"
   ],
-  "description": "Frosted-glass profile card over an animated gradient scene.",
+  "description": "Frosted-glass profile card framed by skewed gradient panels that straighten on hover, with floating glass chips.",
   "variants": [
     "vanilla",
     "react",
@@ -17,6 +17,6 @@
     "background": "dark",
     "height": 340
   },
-  "author": "component-library",
+  "author": "componentlib (technique after Codewithvinay, Uiverse.io — MIT)",
   "createdAt": "2026-11-23"
 }

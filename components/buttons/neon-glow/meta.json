@@ -7,7 +7,7 @@
     "glow",
     "dark"
   ],
-  "description": "Button with an animated neon border and glow on hover.",
+  "description": "Outlined button that floods with neon blue and a four-layer glow on hover or focus.",
   "variants": [
     "vanilla",
     "react",
@@ -17,6 +17,6 @@
     "background": "dark",
     "height": 160
   },
-  "author": "component-library",
+  "author": "componentlib (technique after zjssun, Uiverse.io — MIT)",
   "createdAt": "2026-11-23"
 }

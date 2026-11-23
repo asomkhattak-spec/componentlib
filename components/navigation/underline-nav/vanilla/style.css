@@ -1,6 +1,13 @@
+/* Sliding indicator + hover fills — fill technique after "Loud Puma" by
+   gharsh11032000 (uiverse.io/gharsh11032000/loud-puma-8, MIT): scaleX(0) ->
+   scaleX(1) from the left at 0.48s cubic-bezier(0.23, 1, 0.32, 1).
+   Rebuilt: the moving underline rides translateX + scaleX (compositor-only,
+   original pattern animated left/width); --un-w is a unitless scale factor
+   applied to a 1px bar. */
 .un-nav {
   --un-x: 0px;
-  --un-w: 0px;
+  --un-w: 0;
+  --un-ease: cubic-bezier(0.23, 1, 0.32, 1);
   position: relative;
   display: flex;
   gap: 0.4rem;
@@ -13,14 +20,19 @@
   content: "";
   position: absolute;
   bottom: 0.25rem;
-  left: var(--un-x);
-  width: var(--un-w);
+  left: 0;
+  width: 1px;
   height: 3px;
   border-radius: 2px;
   background: #6366f1;
-  transition: left 0.25s cubic-bezier(0.4, 0, 0.2, 1), width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: left center;
+  transform: translateX(var(--un-x)) scaleX(var(--un-w));
+  transition: transform 0.48s var(--un-ease);
 }
 .un-nav a {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
   padding: 0.55rem 1.1rem;
   font-size: 0.95rem;
   font-weight: 600;
@@ -30,9 +42,23 @@
   opacity: 0.65;
   transition: opacity 0.2s;
 }
+/* Per-link hover fill, straight from the studied menu: grows from the left. */
+.un-nav a::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: rgb(99 102 241 / 0.16);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.48s var(--un-ease);
+  z-index: -1;
+}
 .un-nav a:hover { opacity: 0.9; }
+.un-nav a:hover::before,
+.un-nav a:focus-visible::before { transform: scaleX(1); }
 .un-nav a[aria-current="page"] { opacity: 1; color: #6366f1; }
 .un-nav a:focus-visible { outline: 2px solid #6366f1; outline-offset: 2px; }
 @media (prefers-reduced-motion: reduce) {
-  .un-nav::after { transition: none; }
+  .un-nav::after, .un-nav a::before { transition: none; }
 }

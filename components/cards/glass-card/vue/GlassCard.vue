@@ -1,44 +1,102 @@
 <template>
   <div class="gc-scene">
-    <article class="gc-card">
-      <div class="gc-avatar" aria-hidden="true">AK</div>
-      <h2 class="gc-name">Amira Khan</h2>
-      <p class="gc-role">Product Designer</p>
-      <ul class="gc-stats">
-        <li><strong>128</strong><span>Projects</span></li>
-        <li><strong>4.9k</strong><span>Followers</span></li>
-        <li><strong>312</strong><span>Following</span></li>
-      </ul>
-    </article>
+    <div class="gc-box">
+      <span class="gc-chips" aria-hidden="true"></span>
+      <article class="gc-card" tabindex="0">
+        <div class="gc-avatar" aria-hidden="true">AK</div>
+        <h2 class="gc-name">Amira Khan</h2>
+        <p class="gc-role">Product Designer</p>
+        <ul class="gc-stats">
+          <li><strong>128</strong><span>Projects</span></li>
+          <li><strong>4.9k</strong><span>Followers</span></li>
+          <li><strong>312</strong><span>Following</span></li>
+        </ul>
+      </article>
+    </div>
   </div>
 </template>
 
 <style>
+/* Skewed gradient panels + floating glass — technique after "Afraid Dodo"
+   by Codewithvinay (uiverse.io/Codewithvinay/afraid-dodo-14, MIT). Original:
+   two skewX(15deg) gradient panels (one blurred 30px) straighten and widen
+   on hover; small backdrop-blurred glass squares float at the corners.
+   Rebuilt: same mechanism, pre-rendered blur, transform/opacity motion,
+   focus-within parity, reduced-motion opt-out. */
 .gc-scene {
   display: grid;
   place-items: center;
   width: min(100%, 420px);
-  padding: 2.5rem 1.5rem;
+  padding: 3rem 1.5rem;
   border-radius: 1rem;
-  background:
-    radial-gradient(circle at 20% 20%, #7c3aed 0, transparent 45%),
-    radial-gradient(circle at 80% 30%, #db2777 0, transparent 45%),
-    radial-gradient(circle at 50% 90%, #0ea5e9 0, transparent 50%),
-    #1e1b4b;
+  background: #14161f;
 }
-.gc-card {
-  width: min(100%, 300px);
-  padding: 1.6rem;
-  border-radius: 1rem;
+.gc-box {
+  --gc-ease: cubic-bezier(0.23, 1, 0.32, 1);
+  position: relative;
+  isolation: isolate;
+  width: 260px;
+}
+
+/* The two skewed panels: sharp + pre-blurred glow copy. */
+.gc-box::before,
+.gc-box::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 25%;
+  width: 50%;
+  height: 100%;
+  border-radius: 8px;
+  background: linear-gradient(315deg, #ffbc00, #ff0058);
+  transform: skewX(15deg);
+  transition: transform 0.5s var(--gc-ease);
+  z-index: -1;
+}
+.gc-box::after { filter: blur(30px); }
+.gc-box:hover::before,
+.gc-box:hover::after,
+.gc-box:focus-within::before,
+.gc-box:focus-within::after {
+  transform: skewX(0deg) scaleX(1.3);
+}
+
+/* Floating glass chips at opposite corners (original: span::before/after). */
+.gc-chips::before,
+.gc-chips::after {
+  content: "";
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  border-radius: 8px;
   background: rgb(255 255 255 / 0.1);
-  border: 1px solid rgb(255 255 255 / 0.25);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  box-shadow: 0 8px 32px rgb(0 0 0 / 0.35);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 5px 15px rgb(0 0 0 / 0.08);
+  animation: gc-float 2s ease-in-out infinite alternate;
+  z-index: 2;
+  pointer-events: none;
+}
+.gc-chips::before { top: -30px; left: -20px; }
+.gc-chips::after { bottom: -30px; right: -20px; animation-delay: -1s; }
+@keyframes gc-float {
+  to { transform: translateY(10px); }
+}
+
+.gc-card {
+  position: relative;
+  padding: 1.6rem;
+  border-radius: 8px;
+  background: rgb(255 255 255 / 0.05);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgb(255 255 255 / 0.12);
+  box-shadow: 0 5px 15px rgb(0 0 0 / 0.1);
   color: #fff;
   font-family: system-ui, sans-serif;
   text-align: center;
 }
+.gc-card:focus-visible { outline: 2px solid #ffbc00; outline-offset: 3px; }
 .gc-avatar {
   display: grid;
   place-items: center;
@@ -48,7 +106,7 @@
   border-radius: 50%;
   font-weight: 700;
   font-size: 1.3rem;
-  background: linear-gradient(135deg, #f472b6, #818cf8);
+  background: linear-gradient(135deg, #ffbc00, #ff0058);
   border: 2px solid rgb(255 255 255 / 0.5);
 }
 .gc-name { margin: 0; font-size: 1.15rem; font-weight: 700; }
@@ -63,4 +121,8 @@
 }
 .gc-stats strong { display: block; font-size: 1.05rem; }
 .gc-stats span { font-size: 0.72rem; opacity: 0.75; text-transform: uppercase; letter-spacing: 0.05em; }
-</style>
+
+@media (prefers-reduced-motion: reduce) {
+  .gc-box::before, .gc-box::after { transition: none; }
+  .gc-chips::before, .gc-chips::after { animation: none; }
+}</style>

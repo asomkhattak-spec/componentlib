@@ -7,7 +7,7 @@
     "hover",
     "interactive"
   ],
-  "description": "Card that flips in 3D on hover or keyboard focus to reveal its back.",
+  "description": "Card that flips on two axes (rotateY + rotateZ) on hover or keyboard focus.",
   "variants": [
     "vanilla",
     "react",
@@ -17,6 +17,6 @@
     "background": "auto",
     "height": 320
   },
-  "author": "component-library",
+  "author": "componentlib (technique after IWhat1, Uiverse.io — MIT)",
   "createdAt": "2026-11-23"
 }

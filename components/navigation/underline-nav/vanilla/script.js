@@ -4,7 +4,8 @@
 
   function move(link) {
     nav.style.setProperty('--un-x', link.offsetLeft + 'px');
-    nav.style.setProperty('--un-w', link.offsetWidth + 'px');
+    // Unitless scale factor: the 1px bar stretches via scaleX (no layout).
+    nav.style.setProperty('--un-w', String(link.offsetWidth));
   }
 
   links.forEach(function (link) {

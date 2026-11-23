@@ -7,7 +7,7 @@
     "material",
     "animation"
   ],
-  "description": "Material-style button with a click-position ripple effect.",
+  "description": "Material-style ripple from the exact click point — fast growth, slow fade, keyboard-centered.",
   "variants": [
     "vanilla",
     "react",
@@ -17,6 +17,6 @@
     "background": "auto",
     "height": 160
   },
-  "author": "component-library",
+  "author": "componentlib (technique after SelfMadeSystem, Uiverse.io — MIT)",
   "createdAt": "2026-11-23"
 }

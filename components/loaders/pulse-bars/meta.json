@@ -7,7 +7,7 @@
     "equalizer",
     "animation"
   ],
-  "description": "Five bars pulsing like an audio equalizer, staggered for a wave effect.",
+  "description": "Five bars collapsing and rebounding in a fast staggered rhythm, like a signal meter.",
   "variants": [
     "vanilla",
     "react",
@@ -17,6 +17,6 @@
     "background": "dark",
     "height": 180
   },
-  "author": "component-library",
+  "author": "componentlib (technique after alexruix, Uiverse.io — MIT)",
   "createdAt": "2026-11-23"
 }

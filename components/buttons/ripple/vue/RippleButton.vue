@@ -17,38 +17,55 @@ export default {
       ripple.style.left = x - size / 2 + 'px';
       ripple.style.top = y - size / 2 + 'px';
       btn.appendChild(ripple);
-      ripple.addEventListener('animationend', () => ripple.remove());
+      ripple.addEventListener('animationend', (ev) => {
+        if (ev.animationName === 'rp-fade') ripple.remove();
+      });
     },
   },
 };
 </script>
 
 <style>
+/* Click-position ripple — technique after "Brown Kangaroo" by SelfMadeSystem
+   (uiverse.io/SelfMadeSystem/brown-kangaroo-43, MIT). Original: a grid of
+   cells whose ::after grows 0 -> 13em in 0.5s ease-out while opacity fades
+   over 1s, isolation: isolate keeps layers inside the button. Rebuilt with
+   a single positioned span per click (exact pointer coordinates, keyboard
+   centered) running the same two-clock timing: fast growth, slow fade. */
 .rp-btn {
   position: relative;
+  isolation: isolate;
   overflow: hidden;
   padding: 0.8rem 2.2rem;
   font: 600 1rem/1 system-ui, sans-serif;
   color: #fff;
-  background: #6366f1;
+  background: hsl(218 68% 52%);
   border: 0;
-  border-radius: 0.6rem;
+  border-radius: 0.5rem;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgb(99 102 241 / 0.4);
+  box-shadow: 1px 2px 4px rgb(0 0 0 / 0.45);
+  transition: background-color 0.2s;
 }
-.rp-btn:focus-visible { outline: 2px solid #6366f1; outline-offset: 3px; }
+.rp-btn:hover { background: hsl(218 68% 47%); }
+.rp-btn:focus-visible { outline: 2px solid hsl(218 68% 52%); outline-offset: 3px; }
+
 .rp-ripple {
   position: absolute;
   border-radius: 50%;
-  background: rgb(255 255 255 / 0.5);
+  background: hsl(218 68% 65%);
   transform: scale(0);
-  animation: rp-grow 0.55s ease-out forwards;
   pointer-events: none;
+  animation:
+    rp-grow 0.5s cubic-bezier(0, 0, 0.2, 1) forwards,
+    rp-fade 1s ease-out forwards;
 }
 @keyframes rp-grow {
-  to { transform: scale(3); opacity: 0; }
+  to { transform: scale(3); }
+}
+@keyframes rp-fade {
+  0%, 40% { opacity: 1; }
+  100% { opacity: 0; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .rp-ripple { animation-duration: 0.01s; }
-}
-</style>
+  .rp-ripple { animation-duration: 0.01s, 0.01s; }
+}</style>

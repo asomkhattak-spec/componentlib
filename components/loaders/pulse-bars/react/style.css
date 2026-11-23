@@ -1,8 +1,14 @@
+/* Collapsing bars — technique after "Nervous Sheep" by alexruix
+   (uiverse.io/alexruix/nervous-sheep-18, MIT). Original: three bars
+   alternating height 48px -> 4px at 0.3s linear alternate with staggered
+   delays (0s / 0.3s / 0.45s). Rebuilt: same rhythm on scaleY so the bars
+   stay compositor-only; five bars keep the wave read at gallery size. */
 .pb-loader {
   --pb-color: #34d399;
+  --pb-speed: 0.3s;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 12px;
   height: 48px;
 }
 .pb-loader span {
@@ -10,15 +16,15 @@
   height: 100%;
   border-radius: 4px;
   background: var(--pb-color);
-  animation: pb-pulse 1s ease-in-out infinite;
+  animation: pb-collapse var(--pb-speed) linear infinite alternate;
 }
-.pb-loader span:nth-child(2) { animation-delay: 0.12s; }
-.pb-loader span:nth-child(3) { animation-delay: 0.24s; }
-.pb-loader span:nth-child(4) { animation-delay: 0.36s; }
-.pb-loader span:nth-child(5) { animation-delay: 0.48s; }
-@keyframes pb-pulse {
-  0%, 100% { transform: scaleY(0.3); }
-  50% { transform: scaleY(1); }
+.pb-loader span:nth-child(2) { animation-delay: calc(var(--pb-speed) * 0.5); }
+.pb-loader span:nth-child(3) { animation-delay: var(--pb-speed); }
+.pb-loader span:nth-child(4) { animation-delay: calc(var(--pb-speed) * 1.5); }
+.pb-loader span:nth-child(5) { animation-delay: calc(var(--pb-speed) * 2); }
+@keyframes pb-collapse {
+  0% { transform: scaleY(1); }
+  100% { transform: scaleY(0.083); } /* 4px of 48px — original endpoints */
 }
 @media (prefers-reduced-motion: reduce) {
   .pb-loader span { animation: none; transform: scaleY(0.6); }

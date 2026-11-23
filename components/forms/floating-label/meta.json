@@ -7,7 +7,7 @@
     "label",
     "focus"
   ],
-  "description": "Text field whose label floats above the input on focus or when filled.",
+  "description": "Label that shrinks into a bordered chip riding the input edge on focus or when filled.",
   "variants": [
     "vanilla",
     "react",
@@ -17,6 +17,6 @@
     "background": "auto",
     "height": 200
   },
-  "author": "component-library",
+  "author": "componentlib (technique after saidbl1, Uiverse.io — MIT)",
   "createdAt": "2026-11-23"
 }

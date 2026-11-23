@@ -7,7 +7,7 @@
     "animation",
     "hover"
   ],
-  "description": "Button with a continuously shifting animated gradient background.",
+  "description": "Button with a perpetually rotating gradient fill and a soft blurred bloom on hover.",
   "variants": [
     "vanilla",
     "react",
@@ -17,6 +17,6 @@
     "background": "dark",
     "height": 160
   },
-  "author": "component-library",
+  "author": "componentlib (technique after Amir10Amir, Uiverse.io — MIT)",
   "createdAt": "2026-11-23"
 }

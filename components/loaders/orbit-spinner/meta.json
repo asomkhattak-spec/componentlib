@@ -7,7 +7,7 @@
     "animation",
     "dots"
   ],
-  "description": "Three dots orbiting a center point with staggered timing.",
+  "description": "Eight dots pulsing in a radial wave, each 45° apart with chasing negative delays.",
   "variants": [
     "vanilla",
     "react",
@@ -17,6 +17,6 @@
     "background": "auto",
     "height": 180
   },
-  "author": "component-library",
+  "author": "componentlib (technique after abrahamcalsin, Uiverse.io — MIT)",
   "createdAt": "2026-11-23"
 }

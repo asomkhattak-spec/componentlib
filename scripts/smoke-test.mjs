@@ -148,6 +148,69 @@ try {
     check('aurora glow blooms on hover', idle === '0' && hovered === '1', `idle ${idle} → hover ${hovered}`);
   }
 
+  // --- Uiverse rebuild checks ---
+  // gradient-shift: rotating fill layer + bloom
+  await page.goto(BASE + '/components/buttons/gradient-shift/', { waitUntil: 'networkidle0' });
+  await new Promise((r) => setTimeout(r, 800));
+  const gsFrame = await (await page.$('#component-preview')).contentFrame();
+  const gsAnim = gsFrame ? await gsFrame.$eval('.gs-fill', (el) => getComputedStyle(el).animationName) : '';
+  check('gradient-shift fill rotates', gsAnim === 'gs-spin', `got ${gsAnim}`);
+  if (gsFrame) {
+    await gsFrame.hover('.gs-btn');
+    await new Promise((r) => setTimeout(r, 500));
+    const bloom = await gsFrame.$eval('.gs-wrap', (el) => getComputedStyle(el, '::before').opacity);
+    check('gradient-shift blooms on hover', bloom === '1', `got ${bloom}`);
+  }
+
+  // neon-glow: glow layer opacity on hover
+  await page.goto(BASE + '/components/buttons/neon-glow/', { waitUntil: 'networkidle0' });
+  await new Promise((r) => setTimeout(r, 800));
+  const ngFrame = await (await page.$('#component-preview')).contentFrame();
+  if (ngFrame) {
+    const idle = await ngFrame.$eval('.ng-btn', (el) => getComputedStyle(el, '::after').opacity);
+    await ngFrame.hover('.ng-btn');
+    await new Promise((r) => setTimeout(r, 700));
+    const lit = await ngFrame.$eval('.ng-btn', (el) => getComputedStyle(el, '::after').opacity);
+    check('neon glow lights on hover', idle === '0' && lit === '1', `idle ${idle} → hover ${lit}`);
+  }
+
+  // flip-card: double-axis rotation
+  await page.goto(BASE + '/components/cards/flip-card/', { waitUntil: 'networkidle0' });
+  await new Promise((r) => setTimeout(r, 800));
+  const fcFrame = await (await page.$('#component-preview')).contentFrame();
+  if (fcFrame) {
+    await fcFrame.hover('.fc-card');
+    await new Promise((r) => setTimeout(r, 1800));
+    const m = await fcFrame.$eval('.fc-inner', (el) => getComputedStyle(el).transform);
+    // rotateY(180)·rotateZ(180) = diag(1, -1, -1): both Y and Z flipped
+    check('flip-card double-axis flip', m.startsWith('matrix3d(1, 0, 0, 0, 0, -1, 0, 0, 0, 0, -1'), `got ${m}`);
+  }
+
+  // floating-label: chip lift on focus
+  await page.goto(BASE + '/components/forms/floating-label/', { waitUntil: 'networkidle0' });
+  await new Promise((r) => setTimeout(r, 800));
+  const flFrame = await (await page.$('#component-preview')).contentFrame();
+  if (flFrame) {
+    await flFrame.click('input');
+    await new Promise((r) => setTimeout(r, 600));
+    const t = await flFrame.$eval('label', (el) => getComputedStyle(el).transform);
+    check('floating label lifts to chip', t.includes('0.7'), `got ${t}`);
+  }
+
+  // orbit-spinner: eight pulsing arms
+  await page.goto(BASE + '/components/loaders/orbit-spinner/', { waitUntil: 'networkidle0' });
+  await new Promise((r) => setTimeout(r, 800));
+  const osFrame = await (await page.$('#component-preview')).contentFrame();
+  const osArms = osFrame ? await osFrame.$$eval('.os-arm', (els) => els.length) : 0;
+  check('orbit spinner has 8 arms', osArms === 8, `got ${osArms}`);
+
+  // pulse-bars: staggered collapse animation
+  await page.goto(BASE + '/components/loaders/pulse-bars/', { waitUntil: 'networkidle0' });
+  await new Promise((r) => setTimeout(r, 800));
+  const pbFrame = await (await page.$('#component-preview')).contentFrame();
+  const pbAnim = pbFrame ? await pbFrame.$eval('.pb-loader span:nth-child(3)', (el) => getComputedStyle(el).animationDelay) : '';
+  check('pulse bars staggered delays', pbAnim === '0.3s', `got ${pbAnim}`);
+
   // --- Theme toggle ---
   await page.goto(BASE + '/', { waitUntil: 'networkidle0' });
   await page.click('#theme-toggle');
