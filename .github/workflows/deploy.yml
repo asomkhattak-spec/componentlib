@@ -1,0 +1,28 @@
+name: deploy
+
+# Auto-deploy to Vercel on every push to main. Uses the VERCEL_TOKEN repo
+# secret (set via: gh secret set VERCEL_TOKEN). Works without the Vercel
+# GitHub App / Login Connection.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Validate components
+        run: npm run validate
+      - name: Deploy to Vercel (production)
+        run: npx vercel deploy --prod --yes --token "$VERCEL_TOKEN"
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: team_J4PtdvKVPeP0u6O9nXpZBoU2
+          VERCEL_PROJECT_ID: prj_rbL0R40VXPyL07VJGuHN2owsMh5O
