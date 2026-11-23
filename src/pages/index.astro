@@ -5,10 +5,10 @@ import { components, categories, categoryLabel } from '../lib/registry';
 
 <Base title="componentlib — copy-paste UI components">
   <section class="hero">
-    <h1>Components you can paste and ship</h1>
+    <h1>Components you can <span class="accent-text">paste and ship</span></h1>
     <p>
-      Browse live previews, grab the HTML, CSS and JavaScript — or switch to the
-      React or Vue variant. Every snippet is self-contained.
+      Play with every component right in the gallery — hover, click, type. Grab the
+      HTML, CSS and JavaScript, or switch to the React or Vue variant.
     </p>
   </section>
 
@@ -41,24 +41,33 @@ import { components, categories, categoryLabel } from '../lib/registry';
           data-tags={c.tags.join(' ').toLowerCase()}
           data-description={c.description.toLowerCase()}
         >
-          <iframe
-            class="card-preview"
-            data-component={c.id}
-            title={`Preview of ${c.title}`}
-            loading="lazy"
-            tabindex="-1"
-            aria-hidden="true"
-          ></iframe>
+          <div class="card-preview-wrap">
+            <iframe
+              class="card-preview"
+              data-component={c.id}
+              data-themed
+              title={`Interactive preview of ${c.title}`}
+              loading="lazy"
+            ></iframe>
+            <button type="button" class="card-reload" data-reload={c.id} aria-label={`Reload preview of ${c.title}`} title="Reload preview">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M21 12a9 9 0 1 1-2.64-6.36M21 3v6h-6" />
+              </svg>
+            </button>
+          </div>
           <div class="card-body">
             <h2><a href={`/components/${c.category}/${c.slug}/`}>{c.title}</a></h2>
-            <p>{c.description}</p>
+            <p><a class="card-desc-link" href={`/components/${c.category}/${c.slug}/`}>{c.description}</a></p>
             <div class="card-meta">
-              <div class="tag-row">
-                {c.tags.slice(0, 3).map((t) => <span class="tag">{t}</span>)}
-              </div>
               <div class="variant-badges">
                 {Object.keys(c.variants).map((v) => <span>{v === 'vanilla' ? 'HTML' : v}</span>)}
               </div>
+              <a class="get-code" href={`/components/${c.category}/${c.slug}/#code`}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path d="m8 6-6 6 6 6M16 6l6 6-6 6" />
+                </svg>
+                Get code
+              </a>
             </div>
           </div>
         </article>
@@ -94,8 +103,8 @@ import { components, categories, categoryLabel } from '../lib/registry';
       css: v.files?.css,
       js: v.files?.js,
       background: entry.preview.background,
-      height: 170,
-      interactive: false,
+      height: 210,
+      interactive: true,
     };
   }
 
@@ -118,6 +127,15 @@ import { components, categories, categoryLabel } from '../lib/registry';
     specs.set(frame, spec);
     io.observe(frame);
   });
+
+  // Per-card preview reload (restarts animations / resets state).
+  document.querySelectorAll<HTMLButtonElement>('.card-reload').forEach((btn) =>
+    btn.addEventListener('click', () => {
+      const frame = document.querySelector<HTMLIFrameElement>(`.card-preview[data-component="${btn.dataset.reload}"]`);
+      const spec = frame && specs.get(frame);
+      if (frame && spec) mountPreview(frame, spec);
+    }),
+  );
 
   // Keep thumbnails in sync with the site theme toggle.
   new MutationObserver(() => {

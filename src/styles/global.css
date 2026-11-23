@@ -279,19 +279,30 @@ a {
 --------------------------------------------------------------------------- */
 
 .hero {
-  padding-block: 2.5rem 1.5rem;
+  padding-block: 3rem 1.75rem;
+  text-align: center;
 
   h1 {
-    margin: 0 0 0.4rem;
-    font-size: clamp(1.6rem, 4vw, 2.3rem);
+    margin: 0 auto 0.5rem;
+    font-size: clamp(1.8rem, 4.5vw, 2.7rem);
+    font-weight: 800;
     letter-spacing: -0.03em;
     text-wrap: balance;
+    max-width: 22ch;
+
+    .accent-text {
+      background: linear-gradient(100deg, #6366f1, #a855f7 55%, #ec4899);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
   }
 
   p {
-    margin: 0;
+    margin: 0 auto;
     color: var(--muted);
-    max-width: 60ch;
+    max-width: 56ch;
+    text-wrap: pretty;
   }
 }
 
@@ -300,17 +311,19 @@ a {
   flex-wrap: wrap;
   gap: 0.6rem;
   align-items: center;
-  margin-block: 1.25rem;
+  justify-content: center;
+  margin-block: 1.5rem;
 }
 
 .search-input {
   flex: 1 1 240px;
-  padding: 0.6rem 0.9rem;
+  max-width: 420px;
+  padding: 0.65rem 1rem;
   font: inherit;
   color: var(--text);
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 0.6rem;
+  border-radius: 999px;
 
   &::placeholder {
     color: var(--muted);
@@ -341,24 +354,26 @@ a {
 
 .gallery-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1.1rem;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.25rem;
   padding-block-end: 2rem;
 }
 
 .component-card {
+  position: relative;
   display: flex;
   flex-direction: column;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--surface);
   overflow: hidden;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition: border-color 0.15s, box-shadow 0.15s, translate 0.15s;
 
   &:hover,
   &:focus-within {
     border-color: var(--accent);
-    box-shadow: 0 4px 18px rgb(0 0 0 / 0.08);
+    box-shadow: 0 8px 28px rgb(0 0 0 / 0.12);
+    translate: 0 -2px;
   }
 
   &[hidden] {
@@ -366,17 +381,64 @@ a {
   }
 }
 
-.card-preview {
-  display: block;
-  width: 100%;
-  height: 170px;
-  border: 0;
+/* Preview is fully interactive: clicks land inside the iframe, never on a
+   card-wide link. Navigation lives on the title, description and Get code. */
+.card-preview-wrap {
+  position: relative;
   border-bottom: 1px solid var(--border);
-  pointer-events: none;
   background: var(--surface-2);
 }
 
+.card-preview {
+  display: block;
+  width: 100%;
+  height: 210px;
+  border: 0;
+}
+
+.card-reload {
+  position: absolute;
+  inset-block-start: 0.5rem;
+  inset-inline-end: 0.5rem;
+  display: grid;
+  place-items: center;
+  min-inline-size: 28px;
+  min-block-size: 28px;
+  padding: 0;
+  color: var(--muted);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s;
+
+  svg {
+    width: 0.95rem;
+    height: 0.95rem;
+  }
+
+  &:hover {
+    color: var(--text);
+    border-color: var(--accent);
+  }
+}
+
+/* Reveal on hover AND keyboard focus; never hover-only. */
+.card-preview-wrap:hover .card-reload,
+.card-reload:focus-visible {
+  opacity: 1;
+}
+@media (hover: none) {
+  .card-reload {
+    opacity: 1;
+  }
+}
+
 .card-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
   padding: 0.9rem 1rem 1rem;
 
   h2 {
@@ -387,23 +449,50 @@ a {
       color: var(--text);
       text-decoration: none;
 
-      &::after {
-        content: '';
-        position: absolute;
-        inset: 0;
+      &:hover {
+        color: var(--accent);
       }
     }
   }
 
   p {
-    margin: 0 0 0.6rem;
+    margin: 0 0 0.8rem;
     font-size: 0.85rem;
     color: var(--muted);
   }
 }
 
-.component-card {
-  position: relative;
+.card-desc-link {
+  color: inherit;
+  text-decoration: none;
+
+  &:hover {
+    color: var(--text);
+    text-decoration: underline;
+  }
+}
+
+.get-code {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-inline-start: auto;
+  padding: 0.4rem 0.9rem;
+  font: 700 0.8rem/1.4 var(--font);
+  color: var(--accent-contrast);
+  background: var(--accent);
+  border-radius: 999px;
+  text-decoration: none;
+  transition: filter 0.15s;
+
+  svg {
+    width: 0.9rem;
+    height: 0.9rem;
+  }
+
+  &:hover {
+    filter: brightness(1.12);
+  }
 }
 
 .tag-row {
@@ -422,21 +511,23 @@ a {
 }
 
 .variant-badges {
-  margin-inline-start: auto;
   display: flex;
-  gap: 0.3rem;
+  gap: 0.45rem;
+  align-items: center;
 
   span {
     font-size: 0.68rem;
     font-weight: 700;
     text-transform: uppercase;
-    color: var(--accent);
+    letter-spacing: 0.04em;
+    color: var(--muted);
   }
 }
 
 .card-meta {
   display: flex;
   align-items: center;
+  margin-top: auto;
 }
 
 .no-results {
@@ -568,6 +659,7 @@ a {
 
 .code-shell {
   color-scheme: dark;
+  scroll-margin-top: 1rem;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: #0d1117;
@@ -735,7 +827,13 @@ a {
 
 @media (prefers-reduced-motion: reduce) {
   .preview-frame,
-  .component-card {
+  .component-card,
+  .card-reload,
+  .get-code {
     transition: none;
+  }
+  .component-card:hover,
+  .component-card:focus-within {
+    translate: none;
   }
 }

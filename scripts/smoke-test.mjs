@@ -31,6 +31,28 @@ try {
   const thumbs = await page.$$eval('.card-preview', (els) => els.filter((f) => f.srcdoc).length);
   check('thumbnails mounted (lazy)', thumbs > 0, `${thumbs} mounted`);
 
+  // Interactive preview: clicking the ripple card's button fires the ripple
+  // INSIDE the iframe and does NOT navigate to the component page.
+  await page.$eval('.card-preview[data-component="buttons/ripple"]', (el) => el.scrollIntoView({ block: 'center' }));
+  await page.waitForFunction(
+    () => document.querySelector('.card-preview[data-component="buttons/ripple"]').srcdoc !== '',
+    { timeout: 10000 },
+  );
+  await new Promise((r) => setTimeout(r, 500));
+  const rippleFrame = await (await page.$('.card-preview[data-component="buttons/ripple"]')).contentFrame();
+  await rippleFrame.click('.rp-btn');
+  await new Promise((r) => setTimeout(r, 100));
+  const cardRipples = await rippleFrame.$$eval('.rp-ripple', (els) => els.length);
+  check('card preview is interactive (ripple fires)', cardRipples >= 1, `got ${cardRipples}`);
+  check('preview click stays on gallery', page.url() === BASE + '/', page.url());
+
+  // Get code button navigates to the component page's code section.
+  await page.click('.component-card[data-id="buttons/ripple"] .get-code');
+  await page.waitForSelector('#code', { timeout: 10000 });
+  check('Get code opens component page #code', page.url().includes('/components/buttons/ripple/#code'), page.url());
+  await page.goto(BASE + '/', { waitUntil: 'networkidle0' });
+  await new Promise((r) => setTimeout(r, 800));
+
   // Search filter
   await page.type('#gallery-search', 'ripple');
   await new Promise((r) => setTimeout(r, 300));
