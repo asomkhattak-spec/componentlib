@@ -4,3 +4,5 @@ dist/
 public/registry.json
 public/previews/
 *.log
+.vercel
+.env*
