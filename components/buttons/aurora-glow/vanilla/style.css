@@ -1,0 +1,72 @@
+/* Aurora glow border — technique after "Horrible Horse" by Spacious74
+   (uiverse.io/Spacious74/horrible-horse-4, MIT). Rebuilt: transform/opacity
+   motion instead of animated filter, keyboard parity, reduced-motion opt-in. */
+.ag-wrap {
+  --ag-a: #22d3ee;
+  --ag-b: #e879f9;
+  --ag-ease: cubic-bezier(0.23, 1, 0.32, 1); /* Uiverse house ease-out-quint */
+  position: relative;
+  isolation: isolate;
+  display: inline-block;
+  padding: 3px; /* the visible border thickness */
+  border-radius: 0.9em;
+  background: linear-gradient(100deg, var(--ag-a), var(--ag-b));
+  font-size: 1.25rem;
+}
+
+/* Pre-rendered glow layer: the blur is static, only opacity animates,
+   so the hover bloom stays on the compositor. Painted behind the wrap's
+   own background via z-index:-1 inside an isolated stacking context —
+   no negative-z escape into the host page. */
+.ag-wrap::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(100deg, var(--ag-a), var(--ag-b));
+  filter: blur(1.1em);
+  opacity: 0;
+  z-index: -1;
+  transition: opacity 0.4s var(--ag-ease);
+}
+
+.ag-btn {
+  position: relative;
+  display: block;
+  padding: 0.6em 1.4em;
+  font: 600 1em/1.2 system-ui, sans-serif;
+  letter-spacing: 0.02em;
+  color: #fff;
+  background: #0b0e14;
+  border: 0;
+  border-radius: 0.65em;
+  cursor: pointer;
+  transition: scale 0.15s var(--ag-ease);
+}
+
+.ag-wrap:hover::before,
+.ag-wrap:focus-within::before {
+  opacity: 1;
+}
+
+.ag-btn:focus-visible {
+  outline: 2px solid var(--ag-a);
+  outline-offset: 3px;
+}
+
+/* Press: glow snaps tight (original: blur 1.2em -> 0.2em; here the sharp
+   gradient frame stays and the bloom drops, same visual logic). */
+.ag-wrap:active::before {
+  opacity: 0.25;
+  transition-duration: 0.15s;
+}
+.ag-wrap:active .ag-btn {
+  scale: 0.97;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ag-wrap::before,
+  .ag-btn {
+    transition: none;
+  }
+}

@@ -25,7 +25,7 @@ try {
   // --- Gallery ---
   await page.goto(BASE + '/', { waitUntil: 'networkidle0', timeout: 30000 });
   const cards = await page.$$eval('.component-card', (els) => els.length);
-  check('gallery renders 9 cards', cards === 9, `got ${cards}`);
+  check('gallery renders 10 cards', cards === 10, `got ${cards}`);
 
   await new Promise((r) => setTimeout(r, 1500));
   const thumbs = await page.$$eval('.card-preview', (els) => els.filter((f) => f.srcdoc).length);
@@ -132,6 +132,20 @@ try {
     check('vue nav click moves aria-current', current === 'About', `got ${current}`);
     const x = await frame4.$eval('.un-nav', (el) => el.style.getPropertyValue('--un-x'));
     check('vue underline position updates', x !== '0px' && x !== '', `--un-x: ${x}`);
+  }
+
+  // --- Aurora glow: studied/rebuilt component ---
+  await page.goto(BASE + '/components/buttons/aurora-glow/', { waitUntil: 'networkidle0' });
+  await new Promise((r) => setTimeout(r, 800));
+  const agFrame = await (await page.$('#component-preview')).contentFrame();
+  const agBtn = agFrame ? await agFrame.$$eval('.ag-btn', (els) => els.length) : 0;
+  check('aurora-glow renders', agBtn === 1, `got ${agBtn}`);
+  if (agFrame) {
+    const idle = await agFrame.$eval('.ag-wrap', (el) => getComputedStyle(el, '::before').opacity);
+    await agFrame.hover('.ag-btn');
+    await new Promise((r) => setTimeout(r, 600));
+    const hovered = await agFrame.$eval('.ag-wrap', (el) => getComputedStyle(el, '::before').opacity);
+    check('aurora glow blooms on hover', idle === '0' && hovered === '1', `idle ${idle} → hover ${hovered}`);
   }
 
   // --- Theme toggle ---
