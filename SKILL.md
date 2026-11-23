@@ -95,6 +95,11 @@ git push origin main             # Vercel git integration auto-deploys main
 
 - Long commands (scrape, build, deploy) run as **background shell commands**
   so the session auto-wakes on completion — never poll, never sleep-loop.
+- **Auto-deploy**: push to `main` → `.github/workflows/deploy.yml` validates
+  and runs `vercel deploy --prod` using the `VERCEL_TOKEN` repo secret
+  (org/project IDs pinned in the workflow env). The Vercel GitHub App link
+  was unavailable (account lacks a GitHub Login Connection); Actions is the
+  equivalent loop and needs no dashboard step.
 - Operator style: no confirmation questions on clear orders; assume the most
   useful reading, state the assumption in one line, ship whole. Irreversible
   external actions already authorized by the standing ticket: git push,
