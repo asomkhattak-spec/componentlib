@@ -1,0 +1,22 @@
+{
+  "title": "Glass Profile Card",
+  "slug": "glass-card",
+  "category": "cards",
+  "tags": [
+    "glassmorphism",
+    "profile",
+    "backdrop-filter"
+  ],
+  "description": "Frosted-glass profile card over an animated gradient scene.",
+  "variants": [
+    "vanilla",
+    "react",
+    "vue"
+  ],
+  "preview": {
+    "background": "dark",
+    "height": 340
+  },
+  "author": "component-library",
+  "createdAt": "2026-11-23"
+}

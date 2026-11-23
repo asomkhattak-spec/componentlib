@@ -1,0 +1,22 @@
+{
+  "title": "Floating Label Input",
+  "slug": "floating-label",
+  "category": "forms",
+  "tags": [
+    "input",
+    "label",
+    "focus"
+  ],
+  "description": "Text field whose label floats above the input on focus or when filled.",
+  "variants": [
+    "vanilla",
+    "react",
+    "vue"
+  ],
+  "preview": {
+    "background": "auto",
+    "height": 200
+  },
+  "author": "component-library",
+  "createdAt": "2026-11-23"
+}

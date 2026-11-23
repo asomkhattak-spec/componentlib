@@ -1,0 +1,30 @@
+<template>
+  <button class="gs-btn" type="button">Get started</button>
+</template>
+
+<style>
+.gs-btn {
+  padding: 0.9rem 2.6rem;
+  font: 700 1rem/1 system-ui, sans-serif;
+  color: #fff;
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+  background: linear-gradient(115deg, #f43f5e, #a855f7, #3b82f6, #f43f5e);
+  background-size: 300% 100%;
+  animation: gs-shift 5s linear infinite;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.gs-btn:hover,
+.gs-btn:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgb(168 85 247 / 0.5);
+}
+.gs-btn:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+@keyframes gs-shift {
+  to { background-position: 300% 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gs-btn { animation: none; transition: none; }
+}
+</style>

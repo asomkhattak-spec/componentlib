@@ -1,0 +1,22 @@
+{
+  "title": "Neon Glow Button",
+  "slug": "neon-glow",
+  "category": "buttons",
+  "tags": [
+    "hover",
+    "glow",
+    "dark"
+  ],
+  "description": "Button with an animated neon border and glow on hover.",
+  "variants": [
+    "vanilla",
+    "react",
+    "vue"
+  ],
+  "preview": {
+    "background": "dark",
+    "height": 160
+  },
+  "author": "component-library",
+  "createdAt": "2026-11-23"
+}

@@ -1,0 +1,45 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base title="Contribute — componentlib" description="How to add a component to componentlib.">
+  <section class="hero">
+    <h1>Contribute a component</h1>
+    <p>
+      Components live in the repository as plain files. Add a folder, open a pull
+      request, and CI validates the schema and compiles every preview before merge.
+    </p>
+  </section>
+
+  <section class="code-shell" aria-label="Contribution guide">
+    <div class="code-panel">
+      <div class="code-panel-inner">
+        <pre><code>components/&lt;category&gt;/&lt;slug&gt;/
+├── meta.json          # title, slug, category, tags, variants, preview
+├── vanilla/
+│   ├── index.html     # required: markup fragment
+│   ├── style.css      # at least one of css/js required
+│   └── script.js      # optional behavior
+├── react/             # optional variant
+│   ├── MyComponent.jsx
+│   ├── style.css
+│   └── demo.jsx       # imports './Component', mounts to #app
+└── vue/               # optional variant
+    ├── MyComponent.vue
+    └── demo.js        # imports './Component.vue', mounts to #app</code></pre>
+      </div>
+    </div>
+  </section>
+
+  <section class="hero" style="padding-block: 0 1rem;">
+    <h2 style="font-size: 1.2rem;">Rules</h2>
+    <ul style="color: var(--muted); max-width: 70ch;">
+      <li>Slug and category are kebab-case and must match the folder names.</li>
+      <li>Prefix your CSS classes (e.g. <code>ng-</code>) so snippets never collide when pasted together.</li>
+      <li>Honor <code>prefers-reduced-motion</code> in every animation.</li>
+      <li>Interactive elements need keyboard access and visible focus styles.</li>
+      <li>React/Vue demos import the component as <code>./Component</code> — the build resolves it to your file.</li>
+      <li>Run <code>npm run validate</code> locally; it is the same gate CI runs.</li>
+    </ul>
+  </section>
+</Base>

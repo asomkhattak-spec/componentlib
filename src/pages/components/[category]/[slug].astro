@@ -1,0 +1,465 @@
+---
+import Base from '../../../layouts/Base.astro';
+import { components, categoryLabel, type LibraryComponent } from '../../../lib/registry';
+import { codeToHtml } from 'shiki';
+
+export function getStaticPaths() {
+  return components.map((c) => ({
+    params: { category: c.category, slug: c.slug },
+    props: { component: c },
+  }));
+}
+
+interface Props {
+  component: LibraryComponent;
+}
+
+const { component: c } = Astro.props;
+
+interface Tab {
+  id: string;
+  label: string;
+  filename: string;
+  code: string;
+  html: string;
+}
+
+const LANGS: Record<string, string> = {
+  html: 'html',
+  css: 'css',
+  js: 'javascript',
+  jsx: 'jsx',
+  vue: 'vue',
+};
+
+function langFor(filename: string): string {
+  if (filename.endsWith('.html')) return LANGS.html;
+  if (filename.endsWith('.css')) return LANGS.css;
+  if (filename.endsWith('.jsx')) return LANGS.jsx;
+  if (filename.endsWith('.vue')) return LANGS.vue;
+  return LANGS.js;
+}
+
+async function highlight(code: string, filename: string): Promise<string> {
+  return codeToHtml(code, { lang: langFor(filename), theme: 'github-dark' });
+}
+
+// Build code tabs for each variant, highlighted at build time (zero client cost).
+const variantTabs: Record<string, Tab[]> = {};
+
+const vanilla = c.variants.vanilla;
+variantTabs.vanilla = await Promise.all(
+  (
+    [
+      ['html', 'index.html', vanilla.files.html],
+      ['css', 'style.css', vanilla.files.css],
+      ['js', 'script.js', vanilla.files.js],
+    ] as const
+  )
+    .filter(([, , code]) => code && code.trim())
+    .map(async ([id, filename, code]) => ({
+      id,
+      label: id.toUpperCase(),
+      filename,
+      code,
+      html: await highlight(code, filename),
+    })),
+);
+
+if (c.variants.react) {
+  variantTabs.react = await Promise.all(
+    Object.entries(c.variants.react.files).map(async ([filename, code], i) => ({
+      id: `react-${i}`,
+      label: filename.endsWith('.css') ? 'CSS' : 'JSX',
+      filename,
+      code,
+      html: await highlight(code, filename),
+    })),
+  );
+}
+
+if (c.variants.vue) {
+  variantTabs.vue = await Promise.all(
+    Object.entries(c.variants.vue.files).map(async ([filename, code], i) => ({
+      id: `vue-${i}`,
+      label: 'VUE',
+      filename,
+      code,
+      html: await highlight(code, filename),
+    })),
+  );
+}
+
+const variantNames = Object.keys(variantTabs);
+
+// Serializable payload for the client script.
+const clientData = {
+  id: c.id,
+  preview: c.preview,
+  variants: Object.fromEntries(
+    variantNames.map((name) => {
+      if (name === 'vanilla') {
+        return [name, { kind: 'vanilla', files: vanilla.files }];
+      }
+      const v = c.variants[name as 'react' | 'vue']!;
+      return [name, { kind: 'bundle', bundle: v.bundle, css: v.css ?? '' }];
+    }),
+  ),
+  tabs: Object.fromEntries(
+    variantNames.map((name) => [
+      name,
+      variantTabs[name].map((t) => ({ id: t.id, filename: t.filename, code: t.code })),
+    ]),
+  ),
+};
+
+// Escape "<" so the JSON island can never be terminated early by HTML
+// parsing (e.g. a literal "</script>" inside component code).
+const clientJson = JSON.stringify(clientData).replace(/</g, '\\u003c');
+---
+
+<Base title={`${c.title} — componentlib`} description={c.description}>
+  <nav class="crumbs" aria-label="Breadcrumb">
+    <a href="/">Components</a> / <a href={`/?category=${c.category}`}>{categoryLabel(c.category)}</a> / {c.title}
+  </nav>
+
+  <header class="component-head">
+    <h1>{c.title}</h1>
+    <p>{c.description}</p>
+    <div class="tag-row">
+      {c.tags.map((t) => <span class="tag">{t}</span>)}
+    </div>
+  </header>
+
+  <div class="variant-switch" role="group" aria-label="Framework variant">
+    {variantNames.map((name, i) => (
+      <button type="button" data-variant={name} aria-pressed={i === 0 ? 'true' : 'false'}>
+        {name === 'vanilla' ? 'Vanilla' : name === 'react' ? 'React' : 'Vue'}
+      </button>
+    ))}
+  </div>
+
+  <section class="preview-shell" aria-label="Live preview">
+    <div class="preview-toolbar">
+      <div class="group" role="group" aria-label="Preview background">
+        <button type="button" data-bg="light" aria-pressed={c.preview.background === 'light' ? 'true' : 'false'}>Light</button>
+        <button type="button" data-bg="dark" aria-pressed={c.preview.background === 'dark' ? 'true' : 'false'}>Dark</button>
+        <button type="button" data-bg="auto" aria-pressed={c.preview.background === 'auto' ? 'true' : 'false'}>Auto</button>
+      </div>
+      <div class="group" role="group" aria-label="Preview width">
+        <button type="button" data-width="360" aria-pressed="false">360</button>
+        <button type="button" data-width="768" aria-pressed="false">768</button>
+        <button type="button" data-width="full" aria-pressed="true">Full</button>
+      </div>
+      <span class="spacer"></span>
+      <button type="button" id="preview-reload">Reload</button>
+    </div>
+    <div class="preview-stage">
+      <iframe
+        id="component-preview"
+        class="preview-frame"
+        data-themed
+        title={`Live preview of ${c.title}`}
+      ></iframe>
+    </div>
+  </section>
+
+  <section class="code-shell" aria-label="Component source code">
+    <div class="code-toolbar">
+      <div class="tablist" id="code-tablist" role="tablist" aria-label="Source files">
+        {variantTabs.vanilla.map((tab, i) => (
+          <button
+            type="button"
+            role="tab"
+            id={`tab-${tab.id}`}
+            aria-selected={i === 0 ? 'true' : 'false'}
+            tabindex={i === 0 ? 0 : -1}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+      <div class="code-actions">
+        <span class="copy">
+          <button type="button" class="copy-button" id="copy-tab" aria-label="Copy current file">
+            <svg class="icon-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <rect x="9" y="9" width="12" height="12" rx="2" />
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+            </svg>
+            <svg class="icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+              <path d="M20 6 9 17l-5-5" />
+            </svg>
+            Copy
+          </button>
+          <span class="tip" role="status"></span>
+        </span>
+        <span class="copy">
+          <button type="button" class="action-button" id="copy-all">Copy all</button>
+          <span class="tip" role="status"></span>
+        </span>
+        <button type="button" class="action-button" id="download-zip">Download .zip</button>
+      </div>
+    </div>
+
+    <div id="code-panels">
+      {variantTabs.vanilla.map((tab, i) => (
+        <div
+          class="code-panel"
+          role="tabpanel"
+          id={`panel-${tab.id}`}
+          aria-labelledby={`tab-${tab.id}`}
+          hidden={i === 0 ? undefined : 'until-found'}
+          tabindex={i === 0 ? 0 : undefined}
+        >
+          <div class="code-panel-inner" set:html={tab.html} />
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <div class="component-meta">
+    <span>Category: {categoryLabel(c.category)}</span>
+    <span>Author: {c.author}</span>
+    <span>Added: {c.createdAt}</span>
+  </div>
+
+  <script type="application/json" id="component-data" set:html={clientJson} />
+
+  <!-- Pre-highlighted panels for non-default variants, swapped in by the client. -->
+  {variantNames.filter((n) => n !== 'vanilla').map((name) => (
+    <template data-variant-panels={name}>
+      {variantTabs[name].map((tab, i) => (
+        <div
+          class="code-panel"
+          role="tabpanel"
+          id={`panel-${tab.id}`}
+          aria-labelledby={`tab-${tab.id}`}
+          hidden={i === 0 ? undefined : 'until-found'}
+          tabindex={i === 0 ? 0 : undefined}
+        >
+          <div class="code-panel-inner" set:html={tab.html} />
+        </div>
+      ))}
+    </template>
+  ))}
+  {variantNames.filter((n) => n !== 'vanilla').map((name) => (
+    <template data-variant-tabs={name}>
+      {variantTabs[name].map((tab, i) => (
+        <button
+          type="button"
+          role="tab"
+          id={`tab-${tab.id}`}
+          aria-selected={i === 0 ? 'true' : 'false'}
+          tabindex={i === 0 ? 0 : -1}
+        >
+          {tab.label}
+        </button>
+      ))}
+    </template>
+  ))}
+</Base>
+
+<script>
+  import { mountPreview, type PreviewSpec } from '../../../lib/preview';
+
+  interface ClientData {
+    id: string;
+    preview: { background: 'light' | 'dark' | 'auto'; height: number };
+    variants: Record<string, { kind: 'vanilla' | 'bundle'; files?: { html: string; css: string; js: string }; bundle?: string; css?: string }>;
+    tabs: Record<string, { id: string; filename: string; code: string }[]>;
+  }
+
+  const data: ClientData = JSON.parse(document.getElementById('component-data')!.textContent!);
+  const frame = document.getElementById('component-preview') as HTMLIFrameElement;
+  const tablist = document.getElementById('code-tablist')!;
+  const panels = document.getElementById('code-panels')!;
+
+  let variant = 'vanilla';
+  let background = data.preview.background;
+
+  // Keep the vanilla panels/tabs so switching back needs no re-fetch.
+  const vanillaPanels = panels.innerHTML;
+  const vanillaTabs = tablist.innerHTML;
+
+  function currentSpec(): PreviewSpec {
+    const v = data.variants[variant];
+    if (v.kind === 'vanilla') {
+      return {
+        kind: 'vanilla',
+        html: v.files!.html,
+        css: v.files!.css,
+        js: v.files!.js,
+        background,
+        height: data.preview.height,
+        interactive: true,
+      };
+    }
+    return { kind: 'bundle', bundle: v.bundle, css: v.css, background, height: data.preview.height, interactive: true };
+  }
+
+  function renderPreview() {
+    mountPreview(frame, currentSpec());
+  }
+
+  // ---- Variant switching -------------------------------------------------
+  const variantButtons = [...document.querySelectorAll<HTMLButtonElement>('.variant-switch button')];
+  variantButtons.forEach((btn) =>
+    btn.addEventListener('click', () => {
+      variant = btn.dataset.variant!;
+      variantButtons.forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
+      if (variant === 'vanilla') {
+        panels.innerHTML = vanillaPanels;
+        tablist.innerHTML = vanillaTabs;
+      } else {
+        panels.innerHTML = (document.querySelector(`template[data-variant-panels="${variant}"]`) as HTMLTemplateElement).innerHTML;
+        tablist.innerHTML = (document.querySelector(`template[data-variant-tabs="${variant}"]`) as HTMLTemplateElement).innerHTML;
+      }
+      wireTabs();
+      renderPreview();
+    }),
+  );
+
+  // ---- Tabs: selection follows focus, roving tabindex ---------------------
+  function wireTabs() {
+    const tabs = [...tablist.querySelectorAll<HTMLButtonElement>('[role="tab"]')];
+    const currentPanels = [...panels.querySelectorAll<HTMLElement>('[role="tabpanel"]')];
+
+    function select(tab: HTMLButtonElement, focus = false) {
+      tabs.forEach((t) => {
+        const selected = t === tab;
+        t.setAttribute('aria-selected', String(selected));
+        t.tabIndex = selected ? 0 : -1;
+      });
+      currentPanels.forEach((p) => {
+        const selected = p.id === `panel-${tab.id.replace(/^tab-/, '')}`;
+        if (selected) {
+          p.removeAttribute('hidden');
+          if (!p.querySelector('a, button, input, [tabindex]')) p.tabIndex = 0;
+        } else {
+          p.hidden = 'until-found' as unknown as boolean;
+          p.removeAttribute('tabindex');
+        }
+      });
+      tab.scrollIntoView({ block: 'nearest', inline: 'nearest', container: 'nearest' });
+      if (focus) tab.focus();
+    }
+
+    tabs.forEach((tab, i) => {
+      tab.addEventListener('click', () => select(tab));
+      tab.addEventListener('keydown', (e) => {
+        let target: HTMLButtonElement | null = null;
+        if (e.key === 'ArrowRight') target = tabs[(i + 1) % tabs.length];
+        else if (e.key === 'ArrowLeft') target = tabs[(i - 1 + tabs.length) % tabs.length];
+        else if (e.key === 'Home') target = tabs[0];
+        else if (e.key === 'End') target = tabs[tabs.length - 1];
+        if (target) {
+          e.preventDefault();
+          select(target, true);
+        }
+      });
+    });
+
+    // Find-in-page can reveal a hidden panel: sync tab state to match.
+    currentPanels.forEach((p) =>
+      p.addEventListener('beforematch', () => {
+        const tab = tabs.find((t) => `panel-${t.id.replace(/^tab-/, '')}` === p.id);
+        if (tab) select(tab);
+      }),
+    );
+  }
+  wireTabs();
+
+  // ---- Preview toolbar ----------------------------------------------------
+  document.querySelectorAll<HTMLButtonElement>('[data-bg]').forEach((btn) =>
+    btn.addEventListener('click', () => {
+      background = btn.dataset.bg as typeof background;
+      document.querySelectorAll('[data-bg]').forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
+      renderPreview();
+    }),
+  );
+  document.querySelectorAll<HTMLButtonElement>('[data-width]').forEach((btn) =>
+    btn.addEventListener('click', () => {
+      frame.style.width = btn.dataset.width === 'full' ? '100%' : `${btn.dataset.width}px`;
+      document.querySelectorAll('[data-width]').forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
+    }),
+  );
+  document.getElementById('preview-reload')!.addEventListener('click', renderPreview);
+
+  // ---- Copy buttons -------------------------------------------------------
+  const timers = new WeakMap<HTMLButtonElement, number>();
+  let lastMessage = '';
+
+  function report(button: HTMLButtonElement, ok: boolean) {
+    const tip = button.parentElement!.querySelector('.tip') as HTMLElement;
+    clearTimeout(timers.get(button));
+    button.removeAttribute('data-copied');
+    button.removeAttribute('data-failed');
+    let message = ok ? 'Copied' : 'Copy failed';
+    // VoiceOver skips identical consecutive messages from one region.
+    if (message === lastMessage) message += '\u00A0';
+    lastMessage = message;
+    tip.textContent = '';
+    void button.offsetWidth;
+    button.setAttribute(ok ? 'data-copied' : 'data-failed', '');
+    requestAnimationFrame(() => (tip.textContent = message));
+    timers.set(button, window.setTimeout(() => {
+      button.removeAttribute('data-copied');
+      button.removeAttribute('data-failed');
+      tip.textContent = '';
+    }, 2000));
+  }
+
+  async function copyText(button: HTMLButtonElement, text: string) {
+    if (!text) return;
+    try {
+      await navigator.clipboard.writeText(text);
+      report(button, true);
+    } catch {
+      report(button, false);
+    }
+  }
+
+  function activeTabCode(): string {
+    const selected = tablist.querySelector<HTMLButtonElement>('[aria-selected="true"]')!;
+    const idx = [...tablist.querySelectorAll('[role="tab"]')].indexOf(selected);
+    return data.tabs[variant][idx]?.code ?? '';
+  }
+
+  document.getElementById('copy-tab')!.addEventListener('click', (e) => {
+    copyText(e.currentTarget as HTMLButtonElement, activeTabCode());
+  });
+
+  document.getElementById('copy-all')!.addEventListener('click', (e) => {
+    const all = data.tabs[variant]
+      .map((t) => `<!-- ${t.filename} -->\n${t.code}`)
+      .join('\n\n');
+    copyText(e.currentTarget as HTMLButtonElement, all);
+  });
+
+  // ---- Zip download -------------------------------------------------------
+  document.getElementById('download-zip')!.addEventListener('click', async () => {
+    const { default: JSZip } = await import('jszip');
+    const zip = new JSZip();
+    const folder = zip.folder(data.id.split('/')[1])!;
+    for (const tab of data.tabs[variant]) {
+      folder.file(tab.filename, tab.code);
+    }
+    if (variant === 'vanilla') {
+      const v = data.variants.vanilla.files!;
+      folder.file(
+        'demo.html',
+        `<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n<title>${data.id}</title>\n<link rel="stylesheet" href="style.css">\n</head>\n<body>\n${v.html}\n${v.js ? '<script src="script.js"><\/script>' : ''}\n</body>\n</html>\n`,
+      );
+    }
+    const blob = await zip.generateAsync({ type: 'blob' });
+    const url = URL.createObjectURL(blob);
+    const a = Object.assign(document.createElement('a'), {
+      href: url,
+      download: `${data.id.replace('/', '-')}-${variant}.zip`,
+    });
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  renderPreview();
+</script>

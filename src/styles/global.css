@@ -1,0 +1,741 @@
+/* ---------------------------------------------------------------------------
+   Design tokens — light/dark via color-scheme + light-dark(), with a
+   prefers-color-scheme fallback for browsers without light-dark() support.
+   The <meta name="color-scheme"> override (set by the theme toggle) is mapped
+   back onto the CSS property so author CSS follows the meta, not vice versa.
+--------------------------------------------------------------------------- */
+
+:root {
+  color-scheme: light dark;
+
+  &:has(> head > meta[name='color-scheme'][content='dark']) {
+    color-scheme: dark;
+  }
+  &:has(> head > meta[name='color-scheme'][content='light']) {
+    color-scheme: light;
+  }
+
+  --bg-light: #f6f7f9;
+  --bg-dark: #0b0e14;
+  --surface-light: #ffffff;
+  --surface-dark: #131722;
+  --surface-2-light: #eef0f4;
+  --surface-2-dark: #1a2030;
+  --text-light: #171c26;
+  --text-dark: #e8ecf3;
+  --muted-light: #5b6472;
+  --muted-dark: #97a1b3;
+  --border-light: #d9dee6;
+  --border-dark: #2a3245;
+  --accent-light: #4f46e5;
+  --accent-dark: #8b93f8;
+  --accent-contrast-light: #ffffff;
+  --accent-contrast-dark: #0b0e14;
+
+  --bg: var(--bg-light);
+  --surface: var(--surface-light);
+  --surface-2: var(--surface-2-light);
+  --text: var(--text-light);
+  --muted: var(--muted-light);
+  --border: var(--border-light);
+  --accent: var(--accent-light);
+  --accent-contrast: var(--accent-contrast-light);
+
+  /* Fallback for browsers without light-dark(): follow the system… */
+  @media (prefers-color-scheme: dark) {
+    --bg: var(--bg-dark);
+    --surface: var(--surface-dark);
+    --surface-2: var(--surface-2-dark);
+    --text: var(--text-dark);
+    --muted: var(--muted-dark);
+    --border: var(--border-dark);
+    --accent: var(--accent-dark);
+    --accent-contrast: var(--accent-contrast-dark);
+  }
+  /* …and honor an explicit toggle override even without light-dark(). */
+  &:has(> head > meta[name='color-scheme'][content='dark']) {
+    --bg: var(--bg-dark);
+    --surface: var(--surface-dark);
+    --surface-2: var(--surface-2-dark);
+    --text: var(--text-dark);
+    --muted: var(--muted-dark);
+    --border: var(--border-dark);
+    --accent: var(--accent-dark);
+    --accent-contrast: var(--accent-contrast-dark);
+  }
+  &:has(> head > meta[name='color-scheme'][content='light']) {
+    --bg: var(--bg-light);
+    --surface: var(--surface-light);
+    --surface-2: var(--surface-2-light);
+    --text: var(--text-light);
+    --muted: var(--muted-light);
+    --border: var(--border-light);
+    --accent: var(--accent-light);
+    --accent-contrast: var(--accent-contrast-light);
+  }
+
+  @supports (color: light-dark(white, black)) {
+    --bg: light-dark(var(--bg-light), var(--bg-dark));
+    --surface: light-dark(var(--surface-light), var(--surface-dark));
+    --surface-2: light-dark(var(--surface-2-light), var(--surface-2-dark));
+    --text: light-dark(var(--text-light), var(--text-dark));
+    --muted: light-dark(var(--muted-light), var(--muted-dark));
+    --border: light-dark(var(--border-light), var(--border-dark));
+    --accent: light-dark(var(--accent-light), var(--accent-dark));
+    --accent-contrast: light-dark(var(--accent-contrast-light), var(--accent-contrast-dark));
+  }
+
+  --radius: 0.75rem;
+  --font: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono: ui-monospace, 'Cascadia Code', 'SF Mono', Menlo, Consolas, monospace;
+
+  accent-color: var(--accent);
+}
+
+/* ---------------------------------------------------------------------------
+   Base
+--------------------------------------------------------------------------- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.55;
+}
+
+a {
+  color: var(--accent);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.wrap {
+  max-width: 1100px;
+  margin-inline: auto;
+  padding-inline: 1.25rem;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---------------------------------------------------------------------------
+   Site chrome
+--------------------------------------------------------------------------- */
+
+.site-header {
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+
+  .wrap {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding-block: 0.8rem;
+  }
+}
+
+.site-logo {
+  font-weight: 800;
+  font-size: 1.1rem;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  text-decoration: none;
+
+  span {
+    color: var(--accent);
+  }
+}
+
+.site-header nav {
+  margin-inline-start: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+
+  a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.92rem;
+    font-weight: 600;
+
+    &:hover {
+      color: var(--text);
+    }
+  }
+}
+
+.theme-toggle {
+  display: grid;
+  place-items: center;
+  min-inline-size: 2.25rem;
+  min-block-size: 2.25rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: var(--surface-2);
+  color: var(--text);
+  cursor: pointer;
+
+  svg {
+    width: 1.1rem;
+    height: 1.1rem;
+  }
+}
+
+/* Both toggle states exist in markup; CSS shows the one matching the
+   currently rendered scheme, so the control is correct even without JS. */
+.theme-toggle .icon-to-dark,
+.theme-toggle .label-to-dark {
+  display: none;
+}
+@media (prefers-color-scheme: light) {
+  .theme-toggle .icon-to-dark {
+    display: block;
+  }
+  .theme-toggle .icon-to-light {
+    display: none;
+  }
+}
+:root:has(> head > meta[name='color-scheme'][content='dark']) .theme-toggle {
+  .icon-to-dark {
+    display: none;
+  }
+  .icon-to-light {
+    display: block;
+  }
+}
+:root:has(> head > meta[name='color-scheme'][content='light']) .theme-toggle {
+  .icon-to-dark {
+    display: block;
+  }
+  .icon-to-light {
+    display: none;
+  }
+}
+/* Visually-hidden labels: keep in the AT tree, toggle with visibility. */
+.theme-toggle .label-to-light {
+  visibility: hidden;
+  position: absolute;
+}
+@media (prefers-color-scheme: light) {
+  .theme-toggle .label-to-dark {
+    visibility: hidden;
+    position: absolute;
+  }
+  .theme-toggle .label-to-light {
+    visibility: visible;
+    position: static;
+  }
+}
+:root:has(> head > meta[name='color-scheme'][content='dark']) .theme-toggle {
+  .label-to-dark {
+    visibility: hidden;
+    position: absolute;
+  }
+  .label-to-light {
+    visibility: visible;
+    position: static;
+  }
+}
+:root:has(> head > meta[name='color-scheme'][content='light']) .theme-toggle {
+  .label-to-dark {
+    visibility: visible;
+    position: static;
+  }
+  .label-to-light {
+    visibility: hidden;
+    position: absolute;
+  }
+}
+
+.site-footer {
+  margin-top: 4rem;
+  padding-block: 1.5rem;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+/* ---------------------------------------------------------------------------
+   Gallery
+--------------------------------------------------------------------------- */
+
+.hero {
+  padding-block: 2.5rem 1.5rem;
+
+  h1 {
+    margin: 0 0 0.4rem;
+    font-size: clamp(1.6rem, 4vw, 2.3rem);
+    letter-spacing: -0.03em;
+    text-wrap: balance;
+  }
+
+  p {
+    margin: 0;
+    color: var(--muted);
+    max-width: 60ch;
+  }
+}
+
+.gallery-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  align-items: center;
+  margin-block: 1.25rem;
+}
+
+.search-input {
+  flex: 1 1 240px;
+  padding: 0.6rem 0.9rem;
+  font: inherit;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.6rem;
+
+  &::placeholder {
+    color: var(--muted);
+  }
+}
+
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.chip {
+  padding: 0.35rem 0.85rem;
+  font: 600 0.82rem/1.4 var(--font);
+  color: var(--muted);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+
+  &[aria-pressed='true'] {
+    color: var(--accent-contrast);
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+}
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.1rem;
+  padding-block-end: 2rem;
+}
+
+.component-card {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  overflow: hidden;
+  transition: border-color 0.15s, box-shadow 0.15s;
+
+  &:hover,
+  &:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 4px 18px rgb(0 0 0 / 0.08);
+  }
+
+  &[hidden] {
+    display: none;
+  }
+}
+
+.card-preview {
+  display: block;
+  width: 100%;
+  height: 170px;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  pointer-events: none;
+  background: var(--surface-2);
+}
+
+.card-body {
+  padding: 0.9rem 1rem 1rem;
+
+  h2 {
+    margin: 0 0 0.2rem;
+    font-size: 1.02rem;
+
+    a {
+      color: var(--text);
+      text-decoration: none;
+
+      &::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+      }
+    }
+  }
+
+  p {
+    margin: 0 0 0.6rem;
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+}
+
+.component-card {
+  position: relative;
+}
+
+.tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.tag {
+  padding: 0.1rem 0.55rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--muted);
+  background: var(--surface-2);
+  border-radius: 999px;
+}
+
+.variant-badges {
+  margin-inline-start: auto;
+  display: flex;
+  gap: 0.3rem;
+
+  span {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+}
+
+.card-meta {
+  display: flex;
+  align-items: center;
+}
+
+.no-results {
+  padding: 2rem;
+  text-align: center;
+  color: var(--muted);
+}
+
+/* ---------------------------------------------------------------------------
+   Component page
+--------------------------------------------------------------------------- */
+
+.crumbs {
+  padding-block: 1.2rem 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+
+  a {
+    color: var(--muted);
+  }
+}
+
+.component-head {
+  padding-block: 0.6rem 1.2rem;
+
+  h1 {
+    margin: 0 0 0.3rem;
+    font-size: 1.7rem;
+    letter-spacing: -0.02em;
+  }
+
+  p {
+    margin: 0 0 0.7rem;
+    color: var(--muted);
+    max-width: 70ch;
+  }
+}
+
+.variant-switch {
+  display: inline-flex;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  margin-block-end: 1rem;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 0.6rem;
+
+  button {
+    padding: 0.4rem 1rem;
+    font: 600 0.88rem/1.4 var(--font);
+    color: var(--muted);
+    background: transparent;
+    border: 0;
+    border-radius: 0.4rem;
+    cursor: pointer;
+
+    &[aria-pressed='true'] {
+      color: var(--text);
+      background: var(--surface);
+      box-shadow: 0 1px 4px rgb(0 0 0 / 0.12);
+    }
+  }
+}
+
+.preview-shell {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  overflow: hidden;
+  margin-block-end: 1.5rem;
+}
+
+.preview-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+
+  .group {
+    display: inline-flex;
+    gap: 0.2rem;
+    padding: 0.15rem;
+    background: var(--surface-2);
+    border-radius: 0.45rem;
+  }
+
+  button {
+    min-inline-size: 2rem;
+    min-block-size: 1.9rem;
+    padding-inline: 0.5rem;
+    font: 600 0.78rem/1 var(--font);
+    color: var(--muted);
+    background: transparent;
+    border: 0;
+    border-radius: 0.35rem;
+    cursor: pointer;
+
+    &[aria-pressed='true'] {
+      color: var(--text);
+      background: var(--surface);
+      box-shadow: 0 1px 3px rgb(0 0 0 / 0.12);
+    }
+  }
+
+  .spacer {
+    margin-inline-start: auto;
+  }
+}
+
+.preview-stage {
+  display: grid;
+  justify-items: center;
+  padding: 0;
+  background: var(--surface-2);
+}
+
+.preview-frame {
+  display: block;
+  width: 100%;
+  border: 0;
+  transition: width 0.2s;
+}
+
+/* ---------------------------------------------------------------------------
+   Code panels — always dark, independent of the page scheme.
+--------------------------------------------------------------------------- */
+
+.code-shell {
+  color-scheme: dark;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: #0d1117;
+  /* Re-specify inherited color properties under the scheme override. */
+  color: #e6edf3;
+  accent-color: var(--accent);
+  overflow: hidden;
+  margin-block-end: 2rem;
+}
+
+.code-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-inline: 0.5rem;
+  border-bottom: 1px solid #21262d;
+}
+
+.tablist {
+  display: flex;
+  overflow-x: auto;
+  scrollbar-width: none;
+  flex: 1;
+
+  button {
+    position: relative;
+    flex: none;
+    padding: 0.65rem 0.9rem;
+    font: 600 0.82rem/1.4 var(--mono);
+    color: #8b949e;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+
+    &[aria-selected='true'] {
+      color: #e6edf3;
+
+      /* Underline via border on a pseudo-element: survives forced colors. */
+      &::after {
+        content: '';
+        position: absolute;
+        inset: auto 0 0;
+        border-block-end: 3px solid #8b93f8;
+      }
+    }
+  }
+}
+
+.code-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding-block: 0.35rem;
+}
+
+.copy {
+  position: relative;
+  display: inline-flex;
+}
+
+.copy-button,
+.action-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-inline-size: 24px;
+  min-block-size: 24px;
+  padding: 0.35rem 0.7rem;
+  font: 600 0.78rem/1.4 var(--font);
+  color: #c9d1d9;
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 0.45rem;
+  cursor: pointer;
+
+  &:hover {
+    border-color: #8b949e;
+  }
+
+  svg {
+    width: 0.9rem;
+    height: 0.9rem;
+  }
+}
+
+.copy-button .icon-check {
+  display: none;
+}
+.copy-button[data-copied] .icon-check {
+  display: block;
+}
+.copy-button[data-copied] .icon-copy {
+  display: none;
+}
+.copy-button[data-copied] {
+  color: #3fb950;
+  border-color: #3fb950;
+}
+.copy-button[data-failed] {
+  color: #f85149;
+  border-color: #f85149;
+}
+
+/* The confirmation bubble IS the live region; hidden with opacity only. */
+.copy .tip {
+  position: absolute;
+  inset-block-end: calc(100% + 6px);
+  inset-inline-end: 0;
+  padding: 0.2rem 0.55rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  white-space: nowrap;
+  color: #e6edf3;
+  background: #1f2630;
+  border: 1px solid #30363d;
+  border-radius: 0.4rem;
+  opacity: 0;
+  transition: opacity 0.15s;
+  pointer-events: none;
+
+  &:not(:empty) {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .copy .tip {
+    transition: none;
+  }
+}
+
+.code-panel {
+  /* No padding/border/background on the panel itself: hidden=until-found
+     keeps the box rendered. Style the child wrapper instead. */
+  .code-panel-inner {
+    max-height: 480px;
+    overflow: auto;
+  }
+
+  pre {
+    margin: 0;
+    padding: 1rem 1.1rem;
+    font: 0.85rem/1.6 var(--mono);
+    tab-size: 2;
+  }
+
+  code {
+    font: inherit;
+  }
+}
+
+/* Shiki emits its own background; keep our dark shell consistent. */
+.code-panel pre.shiki {
+  background: transparent !important;
+}
+
+.component-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding-block-end: 2rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .preview-frame,
+  .component-card {
+    transition: none;
+  }
+}

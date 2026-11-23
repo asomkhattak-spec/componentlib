@@ -1,0 +1,22 @@
+{
+  "title": "Ripple Button",
+  "slug": "ripple",
+  "category": "buttons",
+  "tags": [
+    "click",
+    "material",
+    "animation"
+  ],
+  "description": "Material-style button with a click-position ripple effect.",
+  "variants": [
+    "vanilla",
+    "react",
+    "vue"
+  ],
+  "preview": {
+    "background": "auto",
+    "height": 160
+  },
+  "author": "component-library",
+  "createdAt": "2026-11-23"
+}

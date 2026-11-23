@@ -1,0 +1,22 @@
+{
+  "title": "Pulse Bars Loader",
+  "slug": "pulse-bars",
+  "category": "loaders",
+  "tags": [
+    "bars",
+    "equalizer",
+    "animation"
+  ],
+  "description": "Five bars pulsing like an audio equalizer, staggered for a wave effect.",
+  "variants": [
+    "vanilla",
+    "react",
+    "vue"
+  ],
+  "preview": {
+    "background": "dark",
+    "height": 180
+  },
+  "author": "component-library",
+  "createdAt": "2026-11-23"
+}

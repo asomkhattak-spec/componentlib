@@ -1,0 +1,22 @@
+{
+  "title": "Sliding Underline Nav",
+  "slug": "underline-nav",
+  "category": "navigation",
+  "tags": [
+    "nav",
+    "underline",
+    "animation"
+  ],
+  "description": "Navigation bar with an underline that slides to the active link.",
+  "variants": [
+    "vanilla",
+    "react",
+    "vue"
+  ],
+  "preview": {
+    "background": "auto",
+    "height": 150
+  },
+  "author": "component-library",
+  "createdAt": "2026-11-23"
+}

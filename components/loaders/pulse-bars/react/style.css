@@ -1,0 +1,25 @@
+.pb-loader {
+  --pb-color: #34d399;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 48px;
+}
+.pb-loader span {
+  width: 8px;
+  height: 100%;
+  border-radius: 4px;
+  background: var(--pb-color);
+  animation: pb-pulse 1s ease-in-out infinite;
+}
+.pb-loader span:nth-child(2) { animation-delay: 0.12s; }
+.pb-loader span:nth-child(3) { animation-delay: 0.24s; }
+.pb-loader span:nth-child(4) { animation-delay: 0.36s; }
+.pb-loader span:nth-child(5) { animation-delay: 0.48s; }
+@keyframes pb-pulse {
+  0%, 100% { transform: scaleY(0.3); }
+  50% { transform: scaleY(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pb-loader span { animation: none; transform: scaleY(0.6); }
+}

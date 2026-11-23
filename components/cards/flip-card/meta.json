@@ -1,0 +1,22 @@
+{
+  "title": "3D Flip Card",
+  "slug": "flip-card",
+  "category": "cards",
+  "tags": [
+    "3d",
+    "hover",
+    "interactive"
+  ],
+  "description": "Card that flips in 3D on hover or keyboard focus to reveal its back.",
+  "variants": [
+    "vanilla",
+    "react",
+    "vue"
+  ],
+  "preview": {
+    "background": "auto",
+    "height": 320
+  },
+  "author": "component-library",
+  "createdAt": "2026-11-23"
+}

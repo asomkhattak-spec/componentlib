@@ -1,0 +1,22 @@
+{
+  "title": "Gradient Shift Button",
+  "slug": "gradient-shift",
+  "category": "buttons",
+  "tags": [
+    "gradient",
+    "animation",
+    "hover"
+  ],
+  "description": "Button with a continuously shifting animated gradient background.",
+  "variants": [
+    "vanilla",
+    "react",
+    "vue"
+  ],
+  "preview": {
+    "background": "dark",
+    "height": 160
+  },
+  "author": "component-library",
+  "createdAt": "2026-11-23"
+}

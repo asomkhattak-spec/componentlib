@@ -1,0 +1,27 @@
+.rp-btn {
+  position: relative;
+  overflow: hidden;
+  padding: 0.8rem 2.2rem;
+  font: 600 1rem/1 system-ui, sans-serif;
+  color: #fff;
+  background: #6366f1;
+  border: 0;
+  border-radius: 0.6rem;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgb(99 102 241 / 0.4);
+}
+.rp-btn:focus-visible { outline: 2px solid #6366f1; outline-offset: 3px; }
+.rp-ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 0.5);
+  transform: scale(0);
+  animation: rp-grow 0.55s ease-out forwards;
+  pointer-events: none;
+}
+@keyframes rp-grow {
+  to { transform: scale(3); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rp-ripple { animation-duration: 0.01s; }
+}

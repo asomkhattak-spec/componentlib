@@ -1,0 +1,49 @@
+.gc-scene {
+  display: grid;
+  place-items: center;
+  width: min(100%, 420px);
+  padding: 2.5rem 1.5rem;
+  border-radius: 1rem;
+  background:
+    radial-gradient(circle at 20% 20%, #7c3aed 0, transparent 45%),
+    radial-gradient(circle at 80% 30%, #db2777 0, transparent 45%),
+    radial-gradient(circle at 50% 90%, #0ea5e9 0, transparent 50%),
+    #1e1b4b;
+}
+.gc-card {
+  width: min(100%, 300px);
+  padding: 1.6rem;
+  border-radius: 1rem;
+  background: rgb(255 255 255 / 0.1);
+  border: 1px solid rgb(255 255 255 / 0.25);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 8px 32px rgb(0 0 0 / 0.35);
+  color: #fff;
+  font-family: system-ui, sans-serif;
+  text-align: center;
+}
+.gc-avatar {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 0.8rem;
+  border-radius: 50%;
+  font-weight: 700;
+  font-size: 1.3rem;
+  background: linear-gradient(135deg, #f472b6, #818cf8);
+  border: 2px solid rgb(255 255 255 / 0.5);
+}
+.gc-name { margin: 0; font-size: 1.15rem; font-weight: 700; }
+.gc-role { margin: 0.25rem 0 1rem; font-size: 0.85rem; opacity: 0.8; }
+.gc-stats {
+  display: flex;
+  justify-content: space-around;
+  margin: 0;
+  padding: 0.9rem 0 0;
+  border-top: 1px solid rgb(255 255 255 / 0.2);
+  list-style: none;
+}
+.gc-stats strong { display: block; font-size: 1.05rem; }
+.gc-stats span { font-size: 0.72rem; opacity: 0.75; text-transform: uppercase; letter-spacing: 0.05em; }
